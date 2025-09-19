@@ -139,7 +139,6 @@ JSON file will look like:
 
 ## 📜 License
 
-MIT License – Free to use, modify, and distribute.
 
 ---
 
