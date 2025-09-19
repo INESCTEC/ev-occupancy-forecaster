@@ -1,19 +1,22 @@
-# ⚡ VoltTune: Greedy Voltage Correction Using Flexibility Allocation
+# 🔌 PlugPredict: Occupancy Forecasting with Logistic Regression
 
-VoltTune is a Python-based tool designed to identify and correct voltage violations in low-voltage or distribution electrical networks using a greedy optimization algorithm. It uses a sensitivity matrix estimated from historical measurements and leverages available flexibility (load reduction or injection) to bring all nodal voltages within a specified operating range.
+**PlugPredict** is a Python tool for forecasting occupancy in EV charging stations (or similar plug-in resources).  
+It uses historical binary occupancy data (`0 = free`, `1 = occupied`) stored in `.txt` files and trains a logistic regression model (NumPy-only, no scikit-learn).  
+Predictions are generated for the next **12 hours** at **5-minute intervals**, and results are saved as `.json` files.
 
 ---
 
 ## 📌 Features
 
-- ✅ Learns network voltage sensitivities from historical data  
-- ✅ Detects voltage violations based on user-defined voltage limits  
-- ✅ Applies greedy voltage correction using available power flexibility  
-- ✅ Supports real-world voltage/power data formats  
-- ✅ Fully configurable via environment variables  
-- ✅ Simple, modular, and readable code (PEP8-compliant)  
+- ✅ Logistic regression implemented **from scratch** with NumPy  
+- ✅ Reads historical occupancy data from `.txt` logs  
+- ✅ Trains on all available history  
+- ✅ Forecasts 12 hours ahead (144 × 5‑minute steps)  
+- ✅ Outputs results as `.json` (timestamp + predicted state)  
+- ✅ Fully configurable using **environment variables**  
 
 ---
+
 
 ## ⚡ Workflow
 
@@ -24,55 +27,75 @@ VoltTune is a Python-based tool designed to identify and correct voltage violati
 ## 📁 File Structure
 
 ```
-VoltTune/
-├── VoltTune.py               # Main script
-├── README.md                 # Documentation
-├── database/
-│   └── historic_31.txt       # Example voltage/power history file
-└── input/
-    └── input.txt             # Example flexibility input file
+PlugPredict/
+├── PlugPredict.py        # Main script
+├── README.md             # Documentation
+├── database/             # Folder with historical .txt files
+└── json/                 # Folder where predictions are saved
 ```
 
 ---
 
-## 📊 Input File Formats
+## 📊 Input File Format
 
-### 1. `historic_31.txt` (Voltage & Power Time Series)
-- Tab-separated values  
-- Skips first 2 header lines  
-- Alternating rows: `Voltage`, `Power`, `Voltage`, `Power`, ...  
-- Each row: time series per node  
+### TXT (Historical Occupancy Data)
+- Format:  
+  ```
+  YYYY-MM-DD HH:MM:SS 	 0_or_1
+  ```
+- Example:
+  ```
+  2025-09-18 08:00:00    0
+  2025-09-18 08:05:00    1
+  2025-09-18 08:10:00    1
+  ```
+- Must be continuous in **5-minute resolution**. Missing timestamps are automatically filled with `0`.
 
-**Example (transposed for clarity):**
-
+### JSON (Forecast Output)
+After running the script, predictions are saved as JSON with structure:
+```json
+[
+  {"timestamp": "2025-09-19 08:05:00", "value": 1},
+  {"timestamp": "2025-09-19 08:10:00", "value": 0}
+]
 ```
-Node_0_V: 234.1    233.9    234.0    ...
-Node_0_P:  5.3      5.5      5.4     ...
-Node_1_V: 233.8    233.7    233.6    ...
-Node_1_P:  3.1      3.2      3.3     ...
-```
-
-### 2. `input.txt` (Current Voltage and Flexibility per Node)
-- Columns: `Voltage`, `LoadReductionFlex`, `PowerInjectionFlex`  
-- Each row: one node  
-
-**Example:**
-
-```
-230.5    1.5    -2.0
-229.8    1.0    -1.2
-```
-
-> **Note:** Injection flexibility values must be negative in the file (they are internally negated to positive).
 
 ---
 
-## ⚙️ How It Works
+## ⚙️ Environment Variables
 
-1. **Data Loading** — Reads voltage and power history and current flexibility  
-2. **Sensitivity Estimation** — Computes sensitivity matrix `S` using least squares  
-3. **Voltage Violation Detection** — Identifies nodes outside `Vmin`/`Vmax` bounds  
-4. **Greedy Correction Loop** — Applies ∆P at most impactful nodes to fix voltages  
+PlugPredict requires two environment variables to be set:
+
+- `INPUT_FOLDER` → Path to folder containing `.txt` history files  
+- `OUTPUT_FOLDER` → Path to folder where `.json` predictions will be written  
+
+### Example
+
+#### PowerShell (Windows)
+```powershell
+$env:INPUT_FOLDER="C:/Users/You/database"
+$env:OUTPUT_FOLDER="C:/Users/You/json"
+python PlugPredict.py
+```
+
+#### Bash (Linux/macOS)
+```bash
+export INPUT_FOLDER="/home/you/database"
+export OUTPUT_FOLDER="/home/you/json"
+python PlugPredict.py
+```
+
+If variables are missing, the script will exit with an error message.
+
+---
+
+## 🚀 How It Works
+
+1. Loads all `.txt` occupancy logs from `INPUT_FOLDER`  
+2. Converts timestamps into **cyclical features**: hour, minute, day of week, weekend indicator  
+3. Trains a logistic regression model (gradient descent + optional L2 regularization)  
+4. Generates predictions for the next **12 hours** at **5-minute intervals**  
+5. Saves results to `OUTPUT_FOLDER` as `.json`  
 
 ---
 
@@ -80,98 +103,43 @@ Node_1_P:  3.1      3.2      3.3     ...
 
 - Python 3.7+  
 - NumPy  
+- Pandas  
 
-Install with pip:
-
-```
-pip install numpy
-```
-
----
-
-## 🚀 Usage
-
-### 1. Set Environment Variables
-
-#### PowerShell (Windows):
-
-```
-$env:HISTORIC_FILE = "database/historic_31.txt"
-$env:INPUT_FILE = "input/input.txt"
-python VoltTune.py
-```
-
-#### Bash (Linux/macOS):
-
-```
-export HISTORIC_FILE="database/historic_31.txt"
-export INPUT_FILE="input/input.txt"
-python VoltTune.py
-```
-
-> ⚠️ If variables are not set, the script will exit with a warning.
-
----
-
-## 📤 Output
-
-After execution, you'll see:
-
-- Applied ∆P per node  
-- Corrected voltages  
-- Number of remaining violations  
-
-**Example Output:**
-
-```
---- Final Results ---
-Applied power corrections (Delta P per node):
-[ 0.    0.    1.25  0.   -0.75  0.   ...]
-
-Corrected voltages (in volts):
-[230.0  229.8  230.5  228.9  229.2  ...]
-
-Number of nodes still violating voltage limits: 0
+Install dependencies:
+```bash
+pip install numpy pandas
 ```
 
 ---
 
-## ⚠️ Troubleshooting
+## 📤 Example Output
 
-- **"Environment variables must be set"** → Set with `export` or `$env:`  
-- **Dimension mismatch** → Files don't align in node count  
-- **Too many iterations** → Flexibility may be insufficient  
+```
+[OK] Saved forecast to: json/station1_pred.json
+```
+
+JSON file will look like:
+```json
+[
+  {"timestamp": "2025-09-19 08:05:00", "value": 1},
+  {"timestamp": "2025-09-19 08:10:00", "value": 0},
+  {"timestamp": "2025-09-19 08:15:00", "value": 0}
+]
+```
 
 ---
 
 ## 📚 Customization
 
-- Change `Vmin` and `Vmax` in `greedy_voltage_correction()`  
-- Adjust reference node in `get_dv_dp()`  
-- Modify prioritization logic in the correction loop  
-
----
-
-## 🧠 Behind the Algorithm
-
-VoltTune uses a **greedy heuristic**:  
-- Select the worst voltage violation  
-- Apply ∆P at node with highest impact  
-- Recalculate and repeat until all voltages are valid or flexibility is exhausted  
-
-This is fast and interpretable, though not globally optimal.
+- Change forecast horizon (default = 12h) by modifying `periods=144` in the code  
+- Adjust probability threshold (default = 0.6) for binary classification  
+- Add new time-based features for richer predictions  
 
 ---
 
 ## 📜 License
 
 MIT License – Free to use, modify, and distribute.
-
----
-
-## 🙌 Acknowledgements
-
-Developed at INESC TEC as part of research into voltage control and DER integration.
 
 ---
 
