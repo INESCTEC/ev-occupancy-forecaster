@@ -1,4 +1,4 @@
-# 🔌 PlugPredict: Occupancy Forecasting with Logistic Regression
+# PlugPredict: Occupancy Forecasting with Logistic Regression
 
 **PlugPredict** is a Python tool for forecasting occupancy in EV charging stations (or similar plug-in resources).  
 It uses historical binary occupancy data (`0 = free`, `1 = occupied`) stored in `.txt` files and trains a logistic regression model (NumPy-only, no scikit-learn).  
@@ -6,25 +6,26 @@ Predictions are generated for the next **12 hours** at **5-minute intervals**, a
 
 ---
 
-## 📌 Features
+## Features
 
-- ✅ Logistic regression implemented **from scratch** with NumPy  
-- ✅ Reads historical occupancy data from `.txt` logs  
-- ✅ Trains on all available history  
-- ✅ Forecasts 12 hours ahead (144 × 5‑minute steps)  
-- ✅ Outputs results as `.json` (timestamp + predicted state)  
-- ✅ Fully configurable using **environment variables**  
-
----
-
-
-## ⚡ Workflow
-
-![PlugPredict Flowchart](docs/flowchart.png)
+- Logistic regression implemented **from scratch** with NumPy  
+- Reads historical occupancy data from `.txt` logs  
+- Trains on all available history  
+- Forecasts 12 hours ahead (144 × 5‑minute steps)  
+- Outputs results as `.json` (timestamp + predicted state)  
+- Fully configurable using **environment variables**  
 
 ---
 
-## 📁 File Structure
+
+## Workflow
+
+<p align="center">
+  <img src="docs/flowchart.png" alt="Voltune Flowchart" width="200"/>
+</p>
+---
+
+## File Structure
 
 ```
 PlugPredict/
@@ -36,7 +37,7 @@ PlugPredict/
 
 ---
 
-## 📊 Input File Format
+## Input File Format
 
 ### TXT (Historical Occupancy Data)
 - Format:  
@@ -62,7 +63,7 @@ After running the script, predictions are saved as JSON with structure:
 
 ---
 
-## ⚙️ Environment Variables
+## Environment Variables
 
 PlugPredict requires two environment variables to be set:
 
@@ -89,7 +90,7 @@ If variables are missing, the script will exit with an error message.
 
 ---
 
-## 🚀 How It Works
+## How It Works
 
 1. Loads all `.txt` occupancy logs from `INPUT_FOLDER`  
 2. Converts timestamps into **cyclical features**: hour, minute, day of week, weekend indicator  
@@ -99,7 +100,7 @@ If variables are missing, the script will exit with an error message.
 
 ---
 
-## ✅ Requirements
+## Requirements
 
 - Python 3.7+  
 - NumPy  
@@ -112,7 +113,7 @@ pip install numpy pandas
 
 ---
 
-## 📤 Example Output
+##  Example Output
 
 ```
 [OK] Saved forecast to: json/station1_pred.json
@@ -129,21 +130,14 @@ JSON file will look like:
 
 ---
 
-## 📚 Customization
+## Customization
 
 - Change forecast horizon (default = 12h) by modifying `periods=144` in the code  
 - Adjust probability threshold (default = 0.6) for binary classification  
 - Add new time-based features for richer predictions  
 
----
-
-## 📜 License
-
 
 ---
-
-## ✉️ Contact
-
-**José P. Sousa**  
-📧 jose.p.sousa@inesctec.pt  
-🏢 INESC TEC
+## Connect with us
+- José P. Sousa (jose.p.sousa@inesctec.pt)
+- Gil Sampaio (gil.s.sampaio@inesctec.pt)
