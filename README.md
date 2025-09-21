@@ -22,7 +22,7 @@ Predictions are generated for the next **12 hours** at **5-minute intervals**, a
 ## Workflow
 
 <p align="center">
-  <img src="docs/flowchart.png" alt="Voltune Flowchart" width="200"/>
+  <img src="docs/flowchart.png" alt="Voltune Flowchart" width="600"/>
 </p>
 ---
 
