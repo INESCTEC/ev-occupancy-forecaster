@@ -13,9 +13,11 @@ You should have received a copy of the European Union Public Licence v1.2 along 
 This program makes use and is distributed with the following libraries:
 * pandas: https://github.com/pandas-dev/pandas
 * numpy: https://github.com/numpy/numpy
-* re : https://docs.python.org/3/library/re.html
-* os : https://docs.python.org/3/library/re.html
-* json :  https://docs.python.org/3/library/re.html
+* re: https://docs.python.org/3/library/re.html
+* os: https://docs.python.org/3/library/os.html
+* json: https://docs.python.org/3/library/json.html
+* fastapi: https://github.com/fastapi/fastapi
+* uvicorn: https://github.com/encode/uvicorn
 
 
 You can reach INESC TEC Technology Licensing Office (TLO) at info.sal@inesctec.pt, or
